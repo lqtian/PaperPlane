@@ -16,11 +16,14 @@
 
 package com.marktony.zhihudaily.homepage;
 
+
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,56 +31,63 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.marktony.zhihudaily.adapter.MainPagerAdapter;
+import com.marktony.zhihudaily.adapter.ZhihuDailyNewsAdapter;
+import com.marktony.zhihudaily.bean.ZhihuDailyNews;
 import com.marktony.zhihudaily.R;
-import com.marktony.zhihudaily.adapter.DoubanMomentAdapter;
-import com.marktony.zhihudaily.bean.DoubanMomentNews;
 import com.marktony.zhihudaily.interfaze.OnRecyclerViewOnClickListener;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
-
-public class DoubanMomentFragment extends Fragment
-        implements DoubanMomentContract.View {
+/**
+ * Created by lizhaotailang on 2016/3/21.
+ * 最新消息
+ * latest posts
+ */
+public class ZhihuDailyFragment extends Fragment
+        implements ZhihuDailyContract.View {
 
     private RecyclerView recyclerView;
-    private SwipeRefreshLayout refreshLayout;
+    private SwipeRefreshLayout refresh;
     private FloatingActionButton fab;
+    private TabLayout tabLayout;
 
-    private DoubanMomentAdapter adapter;
-    private DoubanMomentContract.Presenter presenter;
+    private ZhihuDailyNewsAdapter adapter;
 
     private int mYear = Calendar.getInstance().get(Calendar.YEAR);
     private int mMonth = Calendar.getInstance().get(Calendar.MONTH);
     private int mDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
 
-    // requires an empty constructor
-    public DoubanMomentFragment() {}
+    private ZhihuDailyContract.Presenter presenter;
 
-    public static DoubanMomentFragment newInstance() {
-        return new DoubanMomentFragment();
+    public ZhihuDailyFragment() {}
+
+    public static ZhihuDailyFragment newInstance() {
+        return new ZhihuDailyFragment();
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_list, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_list,container,false);
 
         initViews(view);
 
         presenter.start();
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
             @Override
             public void onRefresh() {
-                presenter.loadPosts(Calendar.getInstance().getTimeInMillis(), true);
+                presenter.refresh();
             }
+
         });
 
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -90,7 +100,7 @@ public class DoubanMomentFragment extends Fragment
                 LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 // 当不滚动时
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    // 获取最后一个完全显示的itemposition
+                    // 获取最后一个完全显示的item position
                     int lastVisibleItem = manager.findLastCompletelyVisibleItemPosition();
                     int totalItemCount = manager.getItemCount();
 
@@ -119,11 +129,52 @@ public class DoubanMomentFragment extends Fragment
             }
         });
 
+        // 直接将豆瓣精选的fab点击事件放在知乎的部分
+        // 因为fab是属于activity的view
+        // 按通常的做法，在每个fragment中去设置监听时间会导致先前设置的listener失效
+        // 尝试将监听放置到main pager adapter中，这样做会引起fragment中recycler view和fab的监听冲突
+        // fab并不能获取到点击事件
+        // 根据tab layout的位置选择显示不同的dialog
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tabLayout.getSelectedTabPosition() == 0) {
+                    Calendar now = Calendar.getInstance();
+                    now.set(mYear, mMonth, mDay);
+                    DatePickerDialog dialog = DatePickerDialog.newInstance(new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+                            mYear = year;
+                            mMonth = monthOfYear;
+                            mDay = dayOfMonth;
+                            Calendar temp = Calendar.getInstance();
+                            temp.clear();
+                            temp.set(year, monthOfYear, dayOfMonth);
+                            presenter.loadPosts(temp.getTimeInMillis(), true);
+                        }
+                    }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+
+                    dialog.setMaxDate(Calendar.getInstance());
+                    Calendar minDate = Calendar.getInstance();
+                    // 2013.5.20是知乎日报api首次上线
+                    minDate.set(2013, 5, 20);
+                    dialog.setMinDate(minDate);
+                    dialog.vibrate(false);
+
+                    dialog.show(getActivity().getFragmentManager(), "DatePickerDialog");
+                } else if (tabLayout.getSelectedTabPosition() == 2) {
+                    ViewPager p = (ViewPager) getActivity().findViewById(R.id.view_pager);
+                    MainPagerAdapter ad = (MainPagerAdapter) p.getAdapter();
+                    ad.getDoubanFragment().showPickDialog();
+                }
+            }
+        });
+
         return view;
     }
 
     @Override
-    public void setPresenter(DoubanMomentContract.Presenter presenter) {
+    public void setPresenter(ZhihuDailyContract.Presenter presenter) {
         if (presenter != null) {
             this.presenter = presenter;
         }
@@ -136,27 +187,19 @@ public class DoubanMomentFragment extends Fragment
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        refresh = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
+        //设置下拉刷新的按钮的颜色
+        refresh.setColorSchemeResources(R.color.colorPrimary);
+
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setRippleColor(getResources().getColor(R.color.colorPrimaryDark));
 
-        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refreshLayout);
-        //设置下拉刷新的按钮的颜色
-        refreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        tabLayout = (TabLayout) getActivity().findViewById(R.id.tab_layout);
 
     }
 
     @Override
-    public void startLoading() {
-        refreshLayout.setRefreshing(true);
-    }
-
-    @Override
-    public void stopLoading() {
-        refreshLayout.setRefreshing(false);
-    }
-
-    @Override
-    public void showLoadingError() {
+    public void showError() {
         Snackbar.make(fab, R.string.loaded_failed,Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.retry, new View.OnClickListener() {
                     @Override
@@ -168,9 +211,29 @@ public class DoubanMomentFragment extends Fragment
     }
 
     @Override
-    public void showResults(ArrayList<DoubanMomentNews.posts> list) {
+    public void showLoading() {
+        refresh.post(new Runnable() {
+            @Override
+            public void run() {
+                refresh.setRefreshing(true);
+            }
+        });
+    }
+
+    @Override
+    public void stopLoading() {
+        refresh.post(new Runnable() {
+            @Override
+            public void run() {
+                refresh.setRefreshing(false);
+            }
+        });
+    }
+
+    @Override
+    public void showResults(ArrayList<ZhihuDailyNews.Question> list) {
         if (adapter == null) {
-            adapter = new DoubanMomentAdapter(getContext(), list);
+            adapter = new ZhihuDailyNewsAdapter(getContext(), list);
             adapter.setItemClickListener(new OnRecyclerViewOnClickListener() {
                 @Override
                 public void OnItemClick(View v, int position) {
@@ -181,34 +244,6 @@ public class DoubanMomentFragment extends Fragment
         } else {
             adapter.notifyDataSetChanged();
         }
-    }
-
-    public void showPickDialog() {
-
-        Calendar now = Calendar.getInstance();
-        now.set(mYear, mMonth, mDay);
-        DatePickerDialog dialog = DatePickerDialog.newInstance(new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-                Calendar temp = Calendar.getInstance();
-                temp.clear();
-                temp.set(year, monthOfYear, dayOfMonth);
-                mYear = year;
-                mMonth = monthOfYear;
-                mDay = dayOfMonth;
-                presenter.loadPosts(temp.getTimeInMillis(), true);
-            }
-        }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-
-        dialog.setMaxDate(Calendar.getInstance());
-        Calendar minDate = Calendar.getInstance();
-        minDate.set(2014, 5, 12);
-        dialog.setMinDate(minDate);
-        // set the dialog not vibrate when date change, default value is true
-        dialog.vibrate(false);
-
-        dialog.show(getActivity().getFragmentManager(), "DatePickerDialog");
-
     }
 
 }

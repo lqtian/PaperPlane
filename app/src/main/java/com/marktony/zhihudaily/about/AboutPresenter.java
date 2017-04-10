@@ -38,9 +38,6 @@ import com.marktony.zhihudaily.license.OpenSourceLicenseActivity;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
-/**
- * Created by Lizhaotailang on 2016/9/4.
- */
 
 public class AboutPresenter implements AboutContract.Presenter {
 

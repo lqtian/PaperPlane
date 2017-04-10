@@ -2,6 +2,7 @@ package com.marktony.zhihudaily.homepage;
 
 import com.marktony.zhihudaily.BasePresenter;
 import com.marktony.zhihudaily.BaseView;
+import com.marktony.zhihudaily.bean.ZhihuDailyNews;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public interface ZhihuDailyContract {
         // 停止显示正在加载
         void stopLoading();
         // 成功获取到数据后，在界面中显示
-        void showResult(ArrayList list);
+        void showResults(ArrayList<ZhihuDailyNews.Question> list);
 
     }
 

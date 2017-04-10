@@ -2,6 +2,10 @@ package com.marktony.zhihudaily.bookmarks;
 
 import com.marktony.zhihudaily.BasePresenter;
 import com.marktony.zhihudaily.BaseView;
+import com.marktony.zhihudaily.bean.BeanType;
+import com.marktony.zhihudaily.bean.DoubanMomentNews;
+import com.marktony.zhihudaily.bean.GuokrHandpickNews;
+import com.marktony.zhihudaily.bean.ZhihuDailyNews;
 
 import java.util.ArrayList;
 
@@ -19,20 +23,21 @@ public interface BookmarksContract {
         // 停止显示正在加载
         void stopLoading();
         // 成功获取到数据后，在界面中显示
-        void showResult(ArrayList list);
+        void showResult(ArrayList<ZhihuDailyNews.Question> zhihuList,
+                        ArrayList<GuokrHandpickNews.result> guokrList,
+                        ArrayList<DoubanMomentNews.posts> doubanList,
+                        ArrayList<Integer> types);
 
     }
 
     interface Presenter extends BasePresenter{
 
-        // 请求数据
-        void loadPosts(long date, boolean clearing);
-        // 刷新数据
-        void refresh();
-        // 加载更多文章
-        void loadMore(long date);
+        void loadResults(boolean refresh);
+
+        void checkForFreshData();
+
         // 显示详情
-        void startReading(int position);
+        void startReading(BeanType type ,int position);
         // 随便看看
         void feelLucky();
     }

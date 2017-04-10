@@ -2,6 +2,8 @@ package com.marktony.zhihudaily.bookmarks;
 
 import android.content.Context;
 
+import com.marktony.zhihudaily.bean.BeanType;
+
 /**
  * Created by meanhan on 2017/4/7.
  */
@@ -22,22 +24,17 @@ public class BookmarksPresenter implements BookmarksContract.Presenter {
     }
 
     @Override
-    public void loadPosts(long date, boolean clearing) {
+    public void loadResults(boolean refresh) {
 
     }
 
     @Override
-    public void refresh() {
+    public void checkForFreshData() {
 
     }
 
     @Override
-    public void loadMore(long date) {
-
-    }
-
-    @Override
-    public void startReading(int position) {
+    public void startReading(BeanType type, int position) {
 
     }
 

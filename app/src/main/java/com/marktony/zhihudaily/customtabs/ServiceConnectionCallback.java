@@ -19,7 +19,6 @@ package com.marktony.zhihudaily.customtabs;
 import android.support.customtabs.CustomTabsClient;
 
 /**
- * Created by Lizhaotailang on 2016/9/4.
  * Callback for events when connecting and disconnecting from Custom Tabs Service.
  */
 

@@ -25,10 +25,6 @@ import android.view.View;
 
 import com.marktony.zhihudaily.R;
 
-/**
- * Created by lizhaotailang on 2016/7/26.
- */
-
 public class AboutPreferenceFragment extends PreferenceFragmentCompat
         implements AboutContract.View {
 

@@ -22,9 +22,6 @@ import android.support.v7.preference.Preference;
 import com.marktony.zhihudaily.BasePresenter;
 import com.marktony.zhihudaily.BaseView;
 
-/**
- * Created by Lizhaotailang on 2016/9/5.
- */
 
 public interface SettingsContract {
 

@@ -27,9 +27,7 @@ import com.marktony.zhihudaily.R;
 
 import static android.content.Context.MODE_PRIVATE;
 
-/**
- * Created by Lizhaotailang on 2016/9/5.
- */
+
 
 public class SettingsPresenter implements SettingsContract.Presenter {
 

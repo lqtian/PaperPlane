@@ -22,9 +22,6 @@ import android.net.Uri;
 
 import com.marktony.zhihudaily.innerbrowser.InnerBrowserActivity;
 
-/**
- * Created by Lizhaotailang on 2016/9/4.
- */
 
 public class CustomFallback implements CustomTabActivityHelper.CustomTabFallback {
 

@@ -8,11 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.marktony.zhihudaily.R;
+import com.marktony.zhihudaily.bean.DoubanMomentNews;
+import com.marktony.zhihudaily.bean.GuokrHandpickNews;
+import com.marktony.zhihudaily.bean.ZhihuDailyNews;
 
 import java.util.ArrayList;
 
 
-public class BookmarksFragment extends Fragment implements BookmarksContract.View{
+public class BookmarksFragment extends Fragment implements BookmarksContract.View {
 
     public BookmarksFragment() {
         // Required empty public constructor
@@ -63,7 +66,8 @@ public class BookmarksFragment extends Fragment implements BookmarksContract.Vie
     }
 
     @Override
-    public void showResult(ArrayList list) {
+    public void showResult(ArrayList<ZhihuDailyNews.Question> zhihuList, ArrayList<GuokrHandpickNews.result> guokrList, ArrayList<DoubanMomentNews.posts> doubanList, ArrayList<Integer> types) {
 
     }
+
 }

@@ -28,9 +28,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Lizhaotailang on 2016/9/4.
- */
 
 public class CustomTabsHelper {
 
